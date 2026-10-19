@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Đánh Giá Tín Dụng Cá Nhân (Credit Scoring & Rating)</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        h1, h2, h3 {
+            color: var(--primary);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        select {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: white;
+            outline: none;
+        }
+
+        select:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+        }
+
+        .results {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .result-card {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            text-align: center;
+        }
+
+        .result-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .result-box .value {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-top: 5px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .badge-excellent { background-color: #16a34a; }
+        .badge-good { background-color: #2563eb; }
+        .badge-average { background-color: #d97706; }
+        .badge-deny { background-color: #dc2626; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>HỆ THỐNG ĐÁNH GIÁ VÀ XẾP HẠNG TÍN DỤNG CÁ NHÂN</h1>
+
+    <form id="creditForm">
+        <!-- Part 1: Personality -->
+        <div class="section">
+            <h2>Phần I: Nhân thân & Uy tín (Personality - Trọng số 40%)</h2>
+            <div class="grid">
+                <div class="form-group">
+                    <label>1. Độ tuổi (Age - 10%)</label>
+                    <select id="age">
+                        <option value="100">36 - 55 tuổi (100 đ)</option>
+                        <option value="75">26 - 35 tuổi (75 đ)</option>
+                        <option value="50">56 - 60 tuổi (50 đ)</option>
+                        <option value="25">20 - 25 tuổi (25 đ)</option>
+                        <option value="0">> 60 tuổi hoặc 18 - 20 tuổi (0 đ)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>2. Trình độ học vấn (Academic level - 10%)</label>
+                    <select id="academic">
+                        <option value="100">Sau đại học (100 đ)</option>
+                        <option value="75">Đại học (75 đ)</option>
+                        <option value="50">Cao đẳng / Nghề (50 đ)</option>
+                        <option value="25">THPT (25 đ)</option>
+                        <option value="0">Dưới THPT (0 đ)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>3. Tiền án tiền sự (Criminal record - 10%)</label>
+                    <select id="criminal">
+                        <option value="100">Không có (100 đ)</option>
+                        <option value="0">Có (0 đ)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>4. Tình trạng cư trú (Residence status - 10%)</label>
+                    <select id="residence">
+                        <option value="100">Sở hữu nhà riêng (100 đ)</option>
+                        <option value="75">Đồng sở hữu nhà (75 đ)</option>
+                        <option value="50">Nhà của cha mẹ / người thân (50 đ)</option>
+                        <option value="25">Đi thuê nhà (25 đ)</option>
+                        <option value="0">Khác (0 đ)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>5. Cấu trúc gia đình (Number of residents - 10%)</label>
+                    <select id="familyStructure">
+                        <option value="100">Gia đình hạt nhân (100 đ)</option>
+                        <option value="75">3 người (75 đ)</option>
+                        <option value="50">4 người (50 đ)</option>
+                        <option value="25">5 người (25 đ)</option>
+                        <option value="0">> 5 người (0 đ)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>6. Bảo hiểm nhân thọ (Life insurance - 10%)</label>
+                    <select id="insurance">
+                        <option value="100">> 100 triệu VNĐ (100 đ)</option>
+                        <option value="75">50 - 100 triệu VNĐ (75 đ)</option>
+                        <option value="50">30 - 50 triệu VNĐ (50 đ)</option>
+                        <option value="25">< 30 triệu VNĐ (25 đ)</option>
+                        <option value="0">Không có (0 đ)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>7. Quan hệ gia đình/xã hội (Family - 10%)</label>
+                    <select id="familyRelation">
+                        <option value="100">Rất tốt / Sống cùng người thân (100 đ)</option>
+                        <option value="75">Sống cùng người thân (75 đ)</option>
+                        <option value="50">Sống cùng người khác (50 đ)</option>
+                        <option value="25">Khác (25 đ)</option>
+                        <option value="0">Không có thông tin (0 đ)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>8. Nghề nghiệp (Occupation - 10%)</label>
+                    <select id="occupation">
+                        <option value="100">Quản lý / Cấp cao (100 đ)</option>
+                        <option value="75">Nhân viên văn phòng (75 đ)</option>
+                        <option value="50">Lao động có kỹ năng (50 đ)</option>
+                        <option value="25">Lao động mùa vụ (25 đ)</option>
+                        <option value="0">Thất nghiệp (0 đ)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>9. Thời gian làm việc (Duration - 10%)</label>
+                    <select id="duration">
+                        <option value="100">> 7 năm (100 đ)</option>
+                        <option value="75">5 - 7 năm (75 đ)</option>
+                        <option value="50">3 - 5 năm (50 đ)</option>
+                        <option value="25">1 - 3 năm (25 đ)</option>
+                        <option value="0">< 1 năm (0 đ)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>10. Nơi làm việc (Place of occupation - 10%)</label>
+                    <select id="workplace">
+                        <option value="100">Cơ quan Nhà nước (100 đ)</option>
+                        <option value="75">Doanh nghiệp tư nhân (75 đ)</option>
+                        <option value="50">Tập đoàn đa quốc gia MNCs (50 đ)</option>
+                        <option value="25">Lao động tự do (25 đ)</option>
+                        <option value="0">Không có (0 đ)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Part 2: Capacity -->
+        <div class="section">
+            <h2>Phần II: Năng lực Tài chính (Capacity - Trọng số 60%)</h2>
+            <div class="grid">
+                <div class="form-group">
+                    <label>1. Tích lũy ròng ổn định hàng tháng (Net surplus - 30%)</label>
+                    <select id="netSurplus">
+                        <option value="100">> 50 triệu VNĐ (100 đ)</option>
+                        <option value="75">20 - 50 triệu VNĐ (75 đ)</option>
+                        <option value="50">10 - 20 triệu VNĐ (50 đ)</option>
+                        <option value="25">5 - 10 triệu VNĐ (25 đ)</option>
+                        <option value="0">< 5 triệu VNĐ (0 đ)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>2. Tỷ lệ trả nợ / Thu nhập (Debt/Income - 30%)</label>
+                    <select id="debtRatio">
+                        <option value="100">< 30% hoặc Không có nợ (100 đ)</option>
+                        <option value="75">30% - 45% (75 đ)</option>
+                        <option value="50">40% - 50% (50 đ)</option>
+                        <option value="25">60% - 70% (25 đ)</option>
+                        <option value="0">> 75% thu nhập (0 đ)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>3. Lịch sử trả nợ (Debt payment situation - 25%)</label>
+                    <select id="paymentHistory">
+                        <option value="100">Đúng hạn / Không có nợ (100 đ)</option>
+                        <option value="75">Từng gia hạn nợ / Khách hàng mới (75 đ)</option>
+                        <option value="50">Có nợ xấu tiềm ẩn (50 đ)</option>
+                        <option value="25">Có nợ xấu, đang gia hạn nợ (25 đ)</option>
+                        <option value="0">Đang có nợ quá hạn (0 đ)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>4. Sử dụng dịch vụ ngân hàng (Banking services - 15%)</label>
+                    <select id="bankingServices">
+                        <option value="100">Tiết kiệm & dịch vụ ngân hàng khác (100 đ)</option>
+                        <option value="75">Tiết kiệm hoặc dịch vụ khác (75 đ)</option>
+                        <option value="50">Có tài khoản thanh toán tại ngân hàng ta (50 đ)</option>
+                        <option value="25">Đang vay tại ngân hàng khác (25 đ)</option>
+                        <option value="0">Không sử dụng dịch vụ (0 đ)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Part 3: Collateral -->
+        <div class="section">
+            <h2>Phần III: Định Giá Tài Sản Đảm Bảo (Collateral Evaluation)</h2>
+            <div class="grid">
+                <div class="form-group">
+                    <label>1. Loại tài sản bảo đảm (Type of collateral)</label>
+                    <select id="collateralType">
+                        <option value="100">Giấy tờ có giá do ngân hàng ta/Trái phiếu Chính phủ cấp (100 đ)</option>
+                        <option value="75">Giấy tờ có giá do ngân hàng khác cấp (trừ cổ phiếu) (75 đ)</option>
+                        <option value="50">Bất động sản ở (Housing) (50 đ)</option>
+                        <option value="25">Bất động sản thương mại, động sản, cổ phiếu (25 đ)</option>
+                        <option value="0">Không có tài sản đảm bảo (0 đ)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>2. Giá trị TSĐB / Tổng dư nợ (Value / Total debt)</label>
+                    <select id="collateralRatio">
+                        <option value="100">> 200% (100 đ)</option>
+                        <option value="75">150% - 200% (75 đ)</option>
+                        <option value="50">100% - 150% (50 đ)</option>
+                        <option value="25">70% - 100% (25 đ)</option>
+                        <option value="0">< 70% (0 đ)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>3. Biến động giá tài sản trong 2 năm (Price fluctuation)</label>
+                    <select id="priceFluctuation">
+                        <option value="100">0% hoặc Không có xu hướng giảm (100 đ)</option>
+                        <option value="75">1% - 10% (75 đ)</option>
+                        <option value="50">10% - 30% (50 đ)</option>
+                        <option value="25">30% - 50% (25 đ)</option>
+                        <option value="0">> 50% (0 đ)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" onclick="calculateCreditScore()">ĐÁNH GIÁ TÍN DỤNG & QUYẾT ĐỊNH</button>
+    </form>
+
+    <!-- Results Display -->
+    <div id="results" class="results">
+        <div class="result-card">
+            <h2>KẾT QUẢ ĐÁNH GIÁ CHI TIẾT</h2>
+            <div class="result-grid">
+                <div class="result-box">
+                    <div>Điểm Nhân Thân (Personality)</div>
+                    <div class="value" id="scorePersonality">0</div>
+                </div>
+                <div class="result-box">
+                    <div>Điểm Năng Lực (Capacity)</div>
+                    <div class="value" id="scoreCapacity">0</div>
+                </div>
+                <div class="result-box">
+                    <div>Tổng Điểm Tín Dụng</div>
+                    <div class="value" id="totalCreditScore">0</div>
+                </div>
+                <div class="result-box">
+                    <div>Xếp Hạng Tín Dụng</div>
+                    <div class="value" id="creditRating">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-card">
+            <h2>ĐÁNH GIÁ TÀI SẢN ĐẢM BẢO</h2>
+            <div class="result-grid">
+                <div class="result-box">
+                    <div>Điểm TSĐB (Collateral)</div>
+                    <div class="value" id="scoreCollateral">0</div>
+                </div>
+                <div class="result-box">
+                    <div>Xếp Hạng TSĐB</div>
+                    <div class="value" id="collateralRating">-</div>
+                </div>
+                <div class="result-box">
+                    <div>Chất Lượng TSĐB</div>
+                    <div class="value" id="collateralEval">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-card" style="text-align: center; background: #fff;">
+            <h2>QUYẾT ĐỊNH TÍN DỤNG CUỐI CÙNG (DECISION MATRIX)</h2>
+            <div style="margin-top: 15px;">
+                <span id="finalDecisionBadge" class="badge" style="font-size: 20px;">-</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function calculateCreditScore() {
+    // 1. Calculate Personality Score (Weights = 10% each)
+    const pIds = ['age', 'academic', 'criminal', 'residence', 'familyStructure', 'insurance', 'familyRelation', 'occupation', 'duration', 'workplace'];
+    let personalitySum = 0;
+    pIds.forEach(id => {
+        personalitySum += parseFloat(document.getElementById(id).value) * 0.10;
+    });
+
+    // 2. Calculate Capacity Score
+    const c1 = parseFloat(document.getElementById('netSurplus').value) * 0.30;
+    const c2 = parseFloat(document.getElementById('debtRatio').value) * 0.30;
+    const c3 = parseFloat(document.getElementById('paymentHistory').value) * 0.25;
+    const c4 = parseFloat(document.getElementById('bankingServices').value) * 0.15;
+    const capacitySum = c1 + c2 + c3 + c4;
+
+    // 3. Total Credit Score = Personality * 40% + Capacity * 60%
+    const totalCreditScore = (personalitySum * 0.40) + (capacitySum * 0.60);
+
+    // Determine Credit Rating
+    let creditRating = 'D';
+    if (totalCreditScore >= 95) creditRating = 'AAA';
+    else if (totalCreditScore >= 90) creditRating = 'AA';
+    else if (totalCreditScore >= 85) creditRating = 'A';
+    else if (totalCreditScore >= 80) creditRating = 'BBB';
+    else if (totalCreditScore >= 70) creditRating = 'BB';
+    else if (totalCreditScore >= 60) creditRating = 'B';
+    else if (totalCreditScore >= 50) creditRating = 'CCC';
+    else if (totalCreditScore >= 40) creditRating = 'CC';
+    else if (totalCreditScore >= 35) creditRating = 'C';
+    else creditRating = 'D';
+
+    // 4. Calculate Collateral Score (Sum of 3 criteria)
+    const col1 = parseFloat(document.getElementById('collateralType').value);
+    const col2 = parseFloat(document.getElementById('collateralRatio').value);
+    const col3 = parseFloat(document.getElementById('priceFluctuation').value);
+    const collateralScore = col1 + col2 + col3;
+
+    // Determine Collateral Rating
+    let collateralRating = 'C';
+    let collateralEval = 'Low';
+    if (collateralScore >= 225) {
+        collateralRating = 'A';
+        collateralEval = 'Strong';
+    } else if (collateralScore >= 75) {
+        collateralRating = 'B';
+        collateralEval = 'Average';
+    } else {
+        collateralRating = 'C';
+        collateralEval = 'Low';
+    }
+
+    // 5. Matrix Decision
+    let finalDecision = "Deny (Từ chối)";
+    let badgeClass = "badge-deny";
+
+    const isHighRating = ['AAA', 'AA', 'A'].includes(creditRating);
+    const isMediumRating = ['BBB', 'BB', 'B'].includes(creditRating);
+
+    if (isHighRating) {
+        if (collateralRating === 'A') {
+            finalDecision = "Excellent (Cho vay - Xuất sắc)";
+            badgeClass = "badge-excellent";
+        } else if (collateralRating === 'B') {
+            finalDecision = "Good (Cho vay - Tốt)";
+            badgeClass = "badge-good";
+        } else {
+            finalDecision = "Average (Cho vay - Trung bình)";
+            badgeClass = "badge-average";
+        }
+    } else if (isMediumRating) {
+        if (collateralRating === 'A') {
+            finalDecision = "Good (Cho vay - Tốt)";
+            badgeClass = "badge-good";
+        } else if (collateralRating === 'B') {
+            finalDecision = "Average (Cho vay - Trung bình)";
+            badgeClass = "badge-average";
+        } else {
+            finalDecision = "Average / Deny (Cân nhắc / Từ chối)";
+            badgeClass = "badge-average";
+        }
+    } else { // CCC, CC, C, D
+        if (creditRating === 'CCC' || creditRating === 'CC') {
+            if (collateralRating === 'A') {
+                finalDecision = "Average / Deny (Cân nhắc / Từ chối)";
+                badgeClass = "badge-average";
+            } else {
+                finalDecision = "Deny (Từ chối cho vay)";
+                badgeClass = "badge-deny";
+            }
+        } else {
+            finalDecision = "Deny (Từ chối cho vay)";
+            badgeClass = "badge-deny";
+        }
+    }
+
+    // Display Results
+    document.getElementById('scorePersonality').innerText = personalitySum.toFixed(1);
+    document.getElementById('scoreCapacity').innerText = capacitySum.toFixed(1);
+    document.getElementById('totalCreditScore').innerText = totalCreditScore.toFixed(2);
+    document.getElementById('creditRating').innerText = creditRating;
+
+    document.getElementById('scoreCollateral').innerText = collateralScore;
+    document.getElementById('collateralRating').innerText = collateralRating;
+    document.getElementById('collateralEval').innerText = collateralEval;
+
+    const badge = document.getElementById('finalDecisionBadge');
+    badge.innerText = finalDecision;
+    badge.className = `badge ${badgeClass}`;
+
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
